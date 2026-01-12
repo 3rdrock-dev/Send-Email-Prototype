@@ -1,0 +1,125 @@
+<ContentDialog
+    x:Class="SendEmailWinUITest.DeliverabilityDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SendEmailWinUITest"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Style="{StaticResource DefaultContentDialogStyle}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="600">
+        <StackPanel Spacing="16">
+            <!-- Domain Info -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="16">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Checking Domain"
+                               FontSize="14"
+                               FontWeight="SemiBold"/>
+                    <TextBlock x:Name="txtDomain"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Check Button -->
+            <Button x:Name="btnCheckDeliverability"
+                    Content="Run Diagnostics"
+                    Click="btnCheckDeliverability_Click"
+                    Style="{StaticResource AccentButtonStyle}"
+                    HorizontalAlignment="Left"/>
+
+            <!-- Results Panel -->
+            <StackPanel x:Name="pnlResults" 
+                        Visibility="Collapsed"
+                        Spacing="0">
+                <!-- Results will be added here dynamically -->
+            </StackPanel>
+
+            <!-- Recommendations -->
+            <Border x:Name="pnlRecommendations"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="16"
+                    Visibility="Collapsed">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header with Copy Button -->
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE946;" FontSize="16"/>
+                            <TextBlock Text="Recommendations for SmarterASP.NET"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <Button x:Name="btnCopyRecommendations"
+                                Grid.Column="1"
+                                Width="36"
+                                Height="36"
+                                Click="btnCopyRecommendations_Click"
+                                ToolTipService.ToolTip="Copy recommendations to clipboard">
+                            <FontIcon Glyph="&#xE8C8;" FontSize="14"/>
+                        </Button>
+                    </Grid>
+
+                    <!-- Recommendations Content -->
+                    <StackPanel Grid.Row="1" Spacing="12">
+                        <TextBlock TextWrapping="Wrap" FontSize="12">
+                            <Run FontWeight="SemiBold">1. Contact SmarterASP.NET Support:</Run>
+                            <LineBreak/>
+                            <Run>   Ask them to configure SPF, DKIM, and DMARC records for your domain.</Run>
+                        </TextBlock>
+
+                        <TextBlock TextWrapping="Wrap" FontSize="12">
+                            <Run FontWeight="SemiBold">2. Microsoft-Specific Whitelisting:</Run>
+                            <LineBreak/>
+                            <Run>   - Sign up for Microsoft SNDS (Smart Network Data Services)</Run>
+                            <LineBreak/>
+                            <Run>   - URL: https://postmaster.live.com/snds/</Run>
+                            <LineBreak/>
+                            <Run>   - This helps monitor your IP reputation with Microsoft</Run>
+                        </TextBlock>
+
+                        <TextBlock TextWrapping="Wrap" FontSize="12">
+                            <Run FontWeight="SemiBold">3. Junk Mail Reporting (JMR):</Run>
+                            <LineBreak/>
+                            <Run>   - Sign up at: https://postmaster.live.com/</Run>
+                            <LineBreak/>
+                            <Run>   - This provides feedback on spam complaints</Run>
+                        </TextBlock>
+
+                        <TextBlock TextWrapping="Wrap" FontSize="12">
+                            <Run FontWeight="SemiBold">4. Email Best Practices:</Run>
+                            <LineBreak/>
+                            <Run>   - Avoid spam trigger words in subject lines</Run>
+                            <LineBreak/>
+                            <Run>   - Include an unsubscribe link if sending bulk emails</Run>
+                            <LineBreak/>
+                            <Run>   - Use a consistent From address</Run>
+                            <LineBreak/>
+                            <Run>   - Ensure your email has both HTML and plain text versions</Run>
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</ContentDialog>

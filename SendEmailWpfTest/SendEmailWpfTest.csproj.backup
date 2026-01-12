@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.26100.1</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <SupportedOSPlatformVersion>10.0.26100.1</SupportedOSPlatformVersion>
+    <ApplicationIcon>Images\favicon.ico</ApplicationIcon>
+    <!-- Commented out: ApplicationIcon requires actual .ico file -->
+    <!-- <ApplicationIcon>Images\favicon.ico</ApplicationIcon> -->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Images\favicon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <!-- Uncomment this section once you have real image files (not .placeholder files) -->
+  <ItemGroup>
+    <Resource Include="Images\email-server.png" Condition="Exists('Images\email-server.png')" />
+    <Resource Include="Images\3rdRockLogoSmall.png" Condition="Exists('Images\3rdRockLogoSmall.png')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IMAPSender\IMAPSender.csproj" />
+  </ItemGroup>
+
+</Project>
+
