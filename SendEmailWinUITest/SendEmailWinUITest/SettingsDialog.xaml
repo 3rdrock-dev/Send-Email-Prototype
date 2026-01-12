@@ -26,102 +26,110 @@
     </StackPanel>
   </ContentDialog.Title>
 
-  <StackPanel Spacing="20" Margin="0,0,0,20" Width="550">
-    <InfoBar x:Name="errorTextBlock"
-             Severity="Error"
-             IsOpen="False"
-             Visibility="Collapsed"/>
+  <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                HorizontalScrollBarVisibility="Disabled"
+                MaxHeight="750"
+                Padding="0,0,0,0">
+    <Grid Margin="0,0,12,20" Width="538">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
 
-    <StackPanel Spacing="12">
-      <TextBlock Text="SMTP Server Settings"
-                 FontSize="16"
-                 FontWeight="SemiBold"/>
+      <StackPanel Grid.Row="0" Spacing="12">
+        <TextBlock Text="SMTP Server Settings"
+                   FontSize="16"
+                   FontWeight="SemiBold"/>
 
-      <Grid>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="150"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="150"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,0">
-          <TextBlock Text="SMTP Host" Margin="0,0,0,4"/>
-          <TextBox x:Name="txtSmtpHost"
-                   PlaceholderText="smtp.gmail.com"/>
-        </StackPanel>
+          <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,12,0">
+            <TextBlock Text="SMTP Host" Margin="0,0,0,4"/>
+            <TextBox x:Name="txtSmtpHost"
+                     PlaceholderText="smtp.maildomain.com"/>
+          </StackPanel>
 
-        <StackPanel Grid.Row="0" Grid.Column="1">
-          <TextBlock Text="Port" Margin="0,0,0,4"/>
-          <TextBox x:Name="txtSmtpPort"
-                   PlaceholderText="465"/>
-        </StackPanel>
+          <StackPanel Grid.Row="0" Grid.Column="1">
+            <TextBlock Text="Port" Margin="0,0,0,4"/>
+            <TextBox x:Name="txtSmtpPort"
+                     PlaceholderText="465"/>
+          </StackPanel>
 
-        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,12,0,0">
-          <TextBlock Text="Username (Email Address)" Margin="0,0,0,4"/>
-          <TextBox x:Name="txtUsername"
-                   PlaceholderText="your-email@example.com"/>
-        </StackPanel>
+          <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,12,0,0">
+            <TextBlock Text="Username (Email Address)" Margin="0,0,0,4"/>
+            <TextBox x:Name="txtUsername"
+                     PlaceholderText="your-email@example.com"/>
+          </StackPanel>
 
-        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,12,0,0">
-          <TextBlock Text="Password" Margin="0,0,0,4"/>
-          <PasswordBox x:Name="txtPassword"
-                       PlaceholderText="Enter password"/>
-          <TextBlock x:Name="txtPasswordHint"
-                     Text="Leave blank to keep existing password"
-                     FontSize="11"
-                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                     Margin="0,4,0,0"
-                     Visibility="Collapsed"/>
-        </StackPanel>
-      </Grid>
+          <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,12,0,0">
+            <TextBlock Text="Password" Margin="0,0,0,4"/>
+            <PasswordBox x:Name="txtPassword"
+                         PlaceholderText="Enter password"/>
+            <TextBlock x:Name="txtPasswordHint"
+                       Text="Leave blank to keep existing password"
+                       FontSize="11"
+                       Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                       Margin="0,4,0,0"
+                       Visibility="Collapsed"/>
+          </StackPanel>
+        </Grid>
 
-      <Button x:Name="btnTestConnection"
-              Content="Test Connection"
-              Click="btnTestConnection_Click"
-              Style="{StaticResource AccentButtonStyle}"/>
-    </StackPanel>
-
-    <StackPanel Spacing="12">
-      <TextBlock Text="Email Defaults"
-                 FontSize="16"
-                 FontWeight="SemiBold"/>
-
-      <StackPanel>
-        <TextBlock Text="From Email Address" Margin="0,0,0,4"/>
-        <TextBox x:Name="txtFromAddress"
-                 PlaceholderText="sender@example.com"/>
+        <Button x:Name="btnTestConnection"
+                Content="Test Connection"
+                Click="btnTestConnection_Click"
+                Style="{StaticResource AccentButtonStyle}"/>
       </StackPanel>
 
-      <StackPanel>
-        <TextBlock Text="From Name" Margin="0,0,0,4"/>
-        <TextBox x:Name="txtFromName"
-                 PlaceholderText="Your Name"/>
-      </StackPanel>
-    </StackPanel>
+      <StackPanel Grid.Row="1" Spacing="12" Margin="0,20,0,0">
+        <TextBlock Text="Email Defaults"
+                   FontSize="16"
+                   FontWeight="SemiBold"/>
 
-    <InfoBar Title="Security Notice"
-             IsOpen="True"
-             IsClosable="False"
-             Severity="Informational"
-             Padding="16,12,16,24"
-             Margin="0,0,0,16">
-      <InfoBar.Content>
-        <StackPanel Spacing="10" Margin="0,6,0,10">
-          <TextBlock Text="• Username and password are encrypted using Windows DPAPI"
-                     TextWrapping="Wrap"
-                     LineHeight="26"/>
-          <TextBlock Text="• Other settings are saved to appsettings.json"
-                     TextWrapping="Wrap"
-                     LineHeight="26"/>
-          <TextBlock Text="• Only your Windows user account can decrypt the credentials"
-                     TextWrapping="Wrap"
-                     LineHeight="26"/>
+        <StackPanel>
+          <TextBlock Text="From Email Address" Margin="0,0,0,4"/>
+          <TextBox x:Name="txtFromAddress"
+                   PlaceholderText="sender@example.com"/>
         </StackPanel>
-      </InfoBar.Content>
-    </InfoBar>
-  </StackPanel>
+
+        <StackPanel>
+          <TextBlock Text="From Name" Margin="0,0,0,4"/>
+          <TextBox x:Name="txtFromName"
+                   PlaceholderText="Your Name"/>
+        </StackPanel>
+      </StackPanel>
+
+      <StackPanel Grid.Row="2" Margin="0,20,0,0">
+        <InfoBar x:Name="securityNoticeInfoBar"
+                 Title="Security Notice"
+                 IsOpen="True"
+                 IsClosable="False"
+                 Severity="Informational"
+                 Padding="16,12,16,12">
+          <InfoBar.Content>
+            <StackPanel Spacing="8" Margin="0,4,0,4">
+              <TextBlock Text="• Username and password are encrypted using Windows DPAPI"
+                         TextWrapping="Wrap"
+                         LineHeight="20"/>
+              <TextBlock Text="• Other settings are saved to appsettings.json"
+                         TextWrapping="Wrap"
+                         LineHeight="20"/>
+              <TextBlock Text="• Only your Windows user account can decrypt the credentials"
+                         TextWrapping="Wrap"
+                         LineHeight="20"/>
+            </StackPanel>
+          </InfoBar.Content>
+        </InfoBar>
+      </StackPanel>
+    </Grid>
+  </ScrollViewer>
 </ContentDialog>

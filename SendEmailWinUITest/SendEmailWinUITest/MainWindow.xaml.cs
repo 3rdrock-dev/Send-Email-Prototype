@@ -222,10 +222,33 @@ public sealed partial class MainWindow : Window
 
         var result = await settingsDialog.ShowAsync();
 
-        if (result == ContentDialogResult.Primary)
+        if (result == ContentDialogResult.Primary && settingsDialog.SettingsSaved)
         {
-            await LoadSettingsAsync();
+            // Reload settings to update the display
+            _appSettings = ConfigurationHelper.GetAppSettings();
+            
+            // Update display directly without triggering LoadSettingsAsync
+            lblHostValue.Text = _appSettings.SmtpSettings.Host;
+            lblPortValue.Text = _appSettings.SmtpSettings.Port.ToString();
+            lblUsernameValue.Text = _appSettings.SmtpSettings.Username;
+            lblPasswordValue.Text = string.IsNullOrEmpty(_appSettings.SmtpSettings.Password)
+                ? "(not set)"
+                : new string('*', _appSettings.SmtpSettings.Password.Length);
 
+            Title = $"Email Sender - {_appSettings.SmtpSettings.Host}";
+
+            // Reinitialize email sender
+            if (!string.IsNullOrEmpty(_appSettings.SmtpSettings.Password))
+            {
+                _emailSender = new IMAPSender.EmailSender(
+                    _appSettings.SmtpSettings.Host,
+                    _appSettings.SmtpSettings.Port,
+                    _appSettings.SmtpSettings.Username,
+                    _appSettings.SmtpSettings.Password
+                );
+            }
+
+            // Ask about restart
             var restartDialog = new ContentDialog
             {
                 Title = "Restart Application",

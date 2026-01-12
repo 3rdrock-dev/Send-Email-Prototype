@@ -26,13 +26,6 @@ namespace SendEmailWinUITest
 
         private void SettingsDialog_Loaded(object sender, RoutedEventArgs e)
         {
-            // Set the actual dialog window size after it's loaded
-            if (this.Content is FrameworkElement content)
-            {
-                content.MinHeight = 1111;
-                content.MaxHeight = 1111;
-            }
-            
             LoadCurrentSettings();
         }
 
@@ -62,10 +55,13 @@ namespace SendEmailWinUITest
                 // Load email defaults
                 txtFromAddress.Text = _currentSettings.EmailDefaults.FromAddress;
                 txtFromName.Text = _currentSettings.EmailDefaults.FromName;
+                
+                // Ensure InfoBar shows security notice
+                ResetInfoBarToSecurityNotice();
             }
             catch (Exception ex)
             {
-                ShowErrorMessage($"Error loading settings: {ex.Message}");
+                ShowErrorInInfoBar($"Error loading settings: {ex.Message}");
             }
         }
 
@@ -77,9 +73,11 @@ namespace SendEmailWinUITest
             try
             {
                 // Validate inputs
-                if (!ValidateInputs())
+                var validationError = ValidateInputs();
+                if (validationError != null)
                 {
                     args.Cancel = true;
+                    ShowErrorInInfoBar(validationError);
                     deferral.Complete();
                     return;
                 }
@@ -111,7 +109,7 @@ namespace SendEmailWinUITest
                     if (!credentialSaved)
                     {
                         args.Cancel = true;
-                        await ShowErrorDialogAsync("Failed to save credentials to secure storage.");
+                        ShowErrorInInfoBar("Failed to save credentials to secure storage.");
                         deferral.Complete();
                         return;
                     }
@@ -123,17 +121,18 @@ namespace SendEmailWinUITest
                 if (settingsSaved)
                 {
                     SettingsSaved = true;
+                    ResetInfoBarToSecurityNotice();
                 }
                 else
                 {
                     args.Cancel = true;
-                    await ShowErrorDialogAsync("Failed to save settings to configuration file.");
+                    ShowErrorInInfoBar("Failed to save settings to configuration file.");
                 }
             }
             catch (Exception ex)
             {
                 args.Cancel = true;
-                await ShowErrorDialogAsync($"Failed to save settings: {ex.Message}");
+                ShowErrorInInfoBar($"Failed to save settings: {ex.Message}");
             }
             finally
             {
@@ -141,13 +140,12 @@ namespace SendEmailWinUITest
             }
         }
 
-        private bool ValidateInputs()
+        private string? ValidateInputs()
         {
             // Validate SMTP Host
             if (string.IsNullOrWhiteSpace(txtSmtpHost.Text))
             {
-                ShowErrorMessage("Please enter an SMTP host.");
-                return false;
+                return "Please enter an SMTP host.";
             }
 
             // Validate SMTP Port
@@ -155,15 +153,13 @@ namespace SendEmailWinUITest
                 !int.TryParse(txtSmtpPort.Text, out int port) || 
                 port < 1 || port > 65535)
             {
-                ShowErrorMessage("Please enter a valid port number (1-65535).");
-                return false;
+                return "Please enter a valid port number (1-65535).";
             }
 
             // Validate Username
             if (string.IsNullOrWhiteSpace(txtUsername.Text))
             {
-                ShowErrorMessage("Please enter a username (email address).");
-                return false;
+                return "Please enter a username (email address).";
             }
 
             // Validate Password - require it if no existing password
@@ -172,32 +168,62 @@ namespace SendEmailWinUITest
             
             if (string.IsNullOrEmpty(txtPassword.Password) && !hasExistingPassword)
             {
-                ShowErrorMessage("Please enter a password.");
-                return false;
+                return "Please enter a password.";
             }
 
             // Validate From Address
             if (string.IsNullOrWhiteSpace(txtFromAddress.Text))
             {
-                ShowErrorMessage("Please enter a from email address.");
-                return false;
+                return "Please enter a from email address.";
             }
 
             // Validate From Name
             if (string.IsNullOrWhiteSpace(txtFromName.Text))
             {
-                ShowErrorMessage("Please enter a from name.");
-                return false;
+                return "Please enter a from name.";
             }
 
-            return true;
+            return null;
         }
 
-        private void ShowErrorMessage(string message)
+        private void ShowErrorInInfoBar(string message)
         {
-            errorTextBlock.Message = message;
-            errorTextBlock.IsOpen = true;
-            errorTextBlock.Visibility = Visibility.Visible;
+            securityNoticeInfoBar.Title = "Error";
+            securityNoticeInfoBar.Message = message;
+            securityNoticeInfoBar.Severity = InfoBarSeverity.Error;
+            securityNoticeInfoBar.IsOpen = true;
+        }
+
+        private void ResetInfoBarToSecurityNotice()
+        {
+            securityNoticeInfoBar.Title = "Security Notice";
+            securityNoticeInfoBar.Message = "";
+            securityNoticeInfoBar.Severity = InfoBarSeverity.Informational;
+            securityNoticeInfoBar.IsOpen = true;
+        }
+
+        private async Task ShowErrorDialogAsync(string title, string message)
+        {
+            var errorDialog = new ContentDialog
+            {
+                Title = title,
+                Content = message,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+            await errorDialog.ShowAsync();
+        }
+
+        private async void ShowErrorMessage(string message)
+        {
+            var errorDialog = new ContentDialog
+            {
+                Title = "Validation Error",
+                Content = message,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+            await errorDialog.ShowAsync();
         }
 
         private async Task ShowErrorDialogAsync(string message)
@@ -215,23 +241,26 @@ namespace SendEmailWinUITest
         private async void btnTestConnection_Click(object sender, RoutedEventArgs e)
         {
             // Validate SMTP settings first
+            string? validationError = null;
+            
             if (string.IsNullOrWhiteSpace(txtSmtpHost.Text))
             {
-                ShowErrorMessage("Please enter an SMTP host.");
-                return;
+                validationError = "Please enter an SMTP host.";
             }
-
-            if (string.IsNullOrWhiteSpace(txtSmtpPort.Text) || 
+            else if (string.IsNullOrWhiteSpace(txtSmtpPort.Text) || 
                 !int.TryParse(txtSmtpPort.Text, out int port) || 
                 port < 1 || port > 65535)
             {
-                ShowErrorMessage("Please enter a valid port number (1-65535).");
-                return;
+                validationError = "Please enter a valid port number (1-65535).";
+            }
+            else if (string.IsNullOrWhiteSpace(txtUsername.Text))
+            {
+                validationError = "Please enter a username.";
             }
 
-            if (string.IsNullOrWhiteSpace(txtUsername.Text))
+            if (validationError != null)
             {
-                ShowErrorMessage("Please enter a username.");
+                ShowErrorInInfoBar(validationError);
                 return;
             }
 
@@ -247,7 +276,7 @@ namespace SendEmailWinUITest
             }
             else
             {
-                ShowErrorMessage("Please enter a password to test the connection.");
+                ShowErrorInInfoBar("Please enter a password to test the connection.");
                 return;
             }
 
@@ -259,33 +288,29 @@ namespace SendEmailWinUITest
             try
             {
                 // Test the connection
+                int portValue = int.Parse(txtSmtpPort.Text.Trim());
                 bool success = await TestSmtpConnectionAsync(
                     txtSmtpHost.Text.Trim(),
-                    port,
+                    portValue,
                     txtUsername.Text.Trim(),
                     passwordToTest);
 
-                var resultDialog = new ContentDialog
+                if (success)
                 {
-                    Title = "Test Connection",
-                    Content = success ? 
-                        "Connection successful!\n\nSMTP server authentication was successful." :
-                        "Connection failed.\n\nPlease check your SMTP settings and credentials.",
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await resultDialog.ShowAsync();
+                    // Show success in InfoBar
+                    securityNoticeInfoBar.Title = "Test Connection";
+                    securityNoticeInfoBar.Message = "Connection successful! SMTP server authentication was successful.";
+                    securityNoticeInfoBar.Severity = InfoBarSeverity.Success;
+                    securityNoticeInfoBar.IsOpen = true;
+                }
+                else
+                {
+                    ShowErrorInInfoBar("Connection failed. Please check your SMTP settings and credentials.");
+                }
             }
             catch (Exception ex)
             {
-                var errorDialog = new ContentDialog
-                {
-                    Title = "Test Connection Error",
-                    Content = $"Connection failed:\n\n{ex.Message}",
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await errorDialog.ShowAsync();
+                ShowErrorInInfoBar($"Connection failed: {ex.Message}");
             }
             finally
             {
