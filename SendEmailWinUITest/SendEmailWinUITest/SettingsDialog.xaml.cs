@@ -16,7 +16,6 @@ namespace SendEmailWinUITest
             this.Loaded += SettingsDialog_Loaded;
             
             // Set dialog properties
-            Title = "Email Settings";
             PrimaryButtonText = "Save Settings";
             CloseButtonText = "Cancel";
             DefaultButton = ContentDialogButton.Primary;
@@ -27,6 +26,13 @@ namespace SendEmailWinUITest
 
         private void SettingsDialog_Loaded(object sender, RoutedEventArgs e)
         {
+            // Set the actual dialog window size after it's loaded
+            if (this.Content is FrameworkElement content)
+            {
+                content.MinHeight = 1111;
+                content.MaxHeight = 1111;
+            }
+            
             LoadCurrentSettings();
         }
 
@@ -189,7 +195,8 @@ namespace SendEmailWinUITest
 
         private void ShowErrorMessage(string message)
         {
-            errorTextBlock.Text = message;
+            errorTextBlock.Message = message;
+            errorTextBlock.IsOpen = true;
             errorTextBlock.Visibility = Visibility.Visible;
         }
 

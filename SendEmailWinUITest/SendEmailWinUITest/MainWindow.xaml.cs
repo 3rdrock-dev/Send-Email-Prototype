@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace SendEmailWinUITest;
@@ -9,6 +10,7 @@ public sealed partial class MainWindow : Window
 {
     private IMAPSender.EmailSender? _emailSender;
     private AppSettings? _appSettings;
+    private bool _isFirstActivation = true;
 
     public MainWindow()
     {
@@ -19,10 +21,58 @@ public sealed partial class MainWindow : Window
         var appWindow = this.AppWindow;
         appWindow.Resize(new Windows.Graphics.SizeInt32(900, 980));
 
-        LoadSettings();
+        // Set window icon
+        SetWindowIcon();
+
+        // Load settings after the window is activated
+        this.Activated += MainWindow_Activated;
     }
 
-    private async void LoadSettings()
+    private void SetWindowIcon()
+    {
+        try
+        {
+            // Try to set the window icon from the Images folder
+            var iconPath = Path.Combine(AppContext.BaseDirectory, "Images", "3rdRockLogoSmall.ico");
+            
+            if (File.Exists(iconPath))
+            {
+                this.AppWindow.SetIcon(iconPath);
+            }
+            else
+            {
+                // Fallback to .png if .ico doesn't exist
+                var pngPath = Path.Combine(AppContext.BaseDirectory, "Images", "3rdRockLogoSmall.png");
+                if (File.Exists(pngPath))
+                {
+                    this.AppWindow.SetIcon(pngPath);
+                }
+            }
+        }
+        catch
+        {
+            // Silently fail if icon cannot be set
+        }
+    }
+
+    private async void MainWindow_Activated(object sender, WindowActivatedEventArgs e)
+    {
+        if (_isFirstActivation && e.WindowActivationState != WindowActivationState.Deactivated)
+        {
+            _isFirstActivation = false;
+            
+            // Give the UI thread a moment to fully initialize XamlRoot
+            await Task.Delay(100);
+            
+            // Verify XamlRoot is available before loading settings
+            if (this.Content?.XamlRoot != null)
+            {
+                await LoadSettingsAsync();
+            }
+        }
+    }
+
+    private async Task LoadSettingsAsync()
     {
         try
         {
@@ -32,27 +82,31 @@ public sealed partial class MainWindow : Window
             if (string.IsNullOrEmpty(_appSettings.SmtpSettings.Password) ||
                 _appSettings.SmtpSettings.Port == 9999)
             {
-                ShowBlurOverlay();
-
-                // Show welcome dialog
-                var welcomeDialog = new ContentDialog
+                // Only show dialog if XamlRoot is available
+                if (this.Content?.XamlRoot != null)
                 {
-                    Title = "Welcome to Email Sender",
-                    Content = "Let's configure your SMTP settings to get started.",
-                    PrimaryButtonText = "Configure Now",
-                    CloseButtonText = "Cancel",
-                    XamlRoot = this.Content.XamlRoot
-                };
+                    ShowBlurOverlay();
 
-                var result = await welcomeDialog.ShowAsync();
+                    // Show welcome dialog
+                    var welcomeDialog = new ContentDialog
+                    {
+                        Title = "Welcome to Email Sender",
+                        Content = "Let's configure your SMTP settings to get started.",
+                        PrimaryButtonText = "Configure Now",
+                        CloseButtonText = "Cancel",
+                        XamlRoot = this.Content.XamlRoot
+                    };
 
-                if (result == ContentDialogResult.Primary)
-                {
-                    await OpenSettingsDialog();
-                    _appSettings = ConfigurationHelper.GetAppSettings();
+                    var result = await welcomeDialog.ShowAsync();
+
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        await OpenSettingsDialog();
+                        _appSettings = ConfigurationHelper.GetAppSettings();
+                    }
+
+                    HideBlurOverlay();
                 }
-
-                HideBlurOverlay();
             }
 
             // Display SMTP settings
@@ -78,7 +132,16 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            await ShowErrorDialog("Configuration Error", $"Error loading configuration: {ex.Message}");
+            // Only show error dialog if XamlRoot is available
+            if (this.Content?.XamlRoot != null)
+            {
+                await ShowErrorDialog("Configuration Error", $"Error loading configuration: {ex.Message}");
+            }
+            else
+            {
+                // Fallback: just set error text without dialog
+                System.Diagnostics.Debug.WriteLine($"Configuration Error: {ex.Message}");
+            }
 
             lblHostValue.Text = "Error loading settings";
             lblPortValue.Text = "-";
@@ -161,7 +224,7 @@ public sealed partial class MainWindow : Window
 
         if (result == ContentDialogResult.Primary)
         {
-            LoadSettings();
+            await LoadSettingsAsync();
 
             var restartDialog = new ContentDialog
             {
