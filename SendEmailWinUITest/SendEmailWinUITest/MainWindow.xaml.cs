@@ -17,15 +17,44 @@ public sealed partial class MainWindow : Window
         this.InitializeComponent();
         Title = "Email Sender";
 
-        // Set window size
+        // Set window size and center on primary display
         var appWindow = this.AppWindow;
         appWindow.Resize(new Windows.Graphics.SizeInt32(900, 980));
+        
+        // Center the window on the primary display
+        CenterWindowOnScreen();
 
         // Set window icon
         SetWindowIcon();
 
         // Load settings after the window is activated
         this.Activated += MainWindow_Activated;
+    }
+
+    private void CenterWindowOnScreen()
+    {
+        try
+        {
+            var displayArea = Microsoft.UI.Windowing.DisplayArea.Primary;
+            var appWindow = this.AppWindow;
+            
+            if (displayArea != null && appWindow != null)
+            {
+                var workArea = displayArea.WorkArea;
+                var windowSize = appWindow.Size;
+                
+                // Calculate center position
+                int x = (workArea.Width - windowSize.Width) / 2 + workArea.X;
+                int y = (workArea.Height - windowSize.Height) / 2 + workArea.Y;
+                
+                // Move window to center
+                appWindow.Move(new Windows.Graphics.PointInt32(x, y));
+            }
+        }
+        catch
+        {
+            // If centering fails, window will appear at default position
+        }
     }
 
     private void SetWindowIcon()
