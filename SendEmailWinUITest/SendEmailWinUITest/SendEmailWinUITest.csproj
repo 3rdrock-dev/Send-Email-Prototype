@@ -16,6 +16,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="SendEmailWinUITest.csproj.Backup.tmp" />
+    <!-- Exclude packaging logo files - these should only be in the packaging project -->
+    <Content Remove="Images\StoreLogo.png" />
+    <Content Remove="Images\StoreLogo.scale-*.png" />
+    <Content Remove="Images\Square150x150Logo.png" />
+    <Content Remove="Images\Square150x150Logo.scale-*.png" />
+    <Content Remove="Images\Square44x44Logo.png" />
+    <Content Remove="Images\Square44x44Logo.scale-*.png" />
+    <Content Remove="Images\Square44x44Logo.targetsize-*.png" />
+    <Content Remove="Images\Wide310x150Logo.png" />
+    <Content Remove="Images\Wide310x150Logo.scale-*.png" />
+    <Content Remove="Images\SplashScreen.png" />
+    <Content Remove="Images\SplashScreen.scale-*.png" />
+    <Content Remove="Images\LockScreenLogo.png" />
+    <Content Remove="Images\LockScreenLogo.scale-*.png" />
+    <Content Remove="Images\BadgeLogo.scale-*.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
