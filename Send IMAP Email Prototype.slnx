@@ -22,9 +22,4 @@
     <Platform Solution="*|x86" Project="x86" />
   </Project>
   <Project Path="SendEmailWpfTest/SendEmailWpfTest.csproj" />
-  <Project Path="SendMapiEmail/SendIMAPEmail.csproj">
-    <Build Solution="*|ARM64" Project="false" />
-    <Build Solution="*|x64" Project="false" />
-    <Build Solution="*|x86" Project="false" />
-  </Project>
 </Solution>
